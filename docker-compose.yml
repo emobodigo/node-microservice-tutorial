@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: microservice-postgres
+    environment:
+      POSTGRES_USER: mspostgres
+      POSTGRES_PASSWORD: mspostgres123
+      POSTGRES_DB: tutorialms
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-database.sql:/docker-entrypoint-initdb.d/init-database.sql
+    networks:
+      - tutorialms_network
+
+volumes:
+  postgres_data:
+
+networks:
+  tutorialms_network:
+    driver: bridge
