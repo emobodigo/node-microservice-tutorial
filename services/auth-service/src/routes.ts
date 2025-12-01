@@ -1,4 +1,4 @@
-import { validateRequest } from "@shared/middlewares";
+import { authenticateToken, validateRequest } from "@shared/middlewares";
 import { Router } from "express";
 import * as authController from "./authController";
 import { loginSchema, refreshTokenSchema, registerSchema } from "./validation";
@@ -27,7 +27,7 @@ router.post(
 router.post("/validate", authController.validateToken);
 
 // protected routes
-router.get("/profile", authController.getProfile);
-router.delete("/profile", authController.deleteAccount);
+router.get("/profile", authenticateToken, authController.getProfile);
+router.delete("/profile", authenticateToken, authController.deleteAccount);
 
 export default router;

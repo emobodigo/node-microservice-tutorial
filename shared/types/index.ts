@@ -7,6 +7,33 @@ export interface User {
   updatedAt: Date;
 }
 
+export interface UserProfile {
+  id: string;
+  userId: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  bio?: string | null;
+  avatarUrl?: string | null;
+  preferences?: any;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UpdateProfileRequest {
+  firstName?: string | null;
+  lastName?: string | null;
+  bio?: string | null;
+  avatarUrl?: string | null;
+  preferences?: Record<string, any>;
+}
+
+export interface ServiceResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  statusCode?: number;
+}
+
 export interface ApiResponse<T = any> {
   success: Boolean;
   data?: T;
@@ -32,12 +59,7 @@ export class ServiceError extends Error {
   code?: string;
   details?: any;
 
-  constructor(
-    message: string,
-    statusCode: number = 500,
-    code?: string,
-    details?: any
-  ) {
+  constructor(message: string, statusCode: number = 500, code?: string, details?: any) {
     super(message);
     this.name = "ServiceError";
     this.statusCode = statusCode;

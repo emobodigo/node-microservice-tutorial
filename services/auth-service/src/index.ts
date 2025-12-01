@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
+import { corsOptions } from "../../../shared/middlewares";
 import authRoutes from "./routes";
 
 dotenv.config();
@@ -11,7 +12,7 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 // Setup middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(helmet());
 
 // Parse JSON Bodies

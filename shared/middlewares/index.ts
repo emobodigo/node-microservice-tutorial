@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
-import { logError, ServiceError } from "../types";
+import jwt from "jsonwebtoken";
+import { JWTPayload, logError, ServiceError } from "../types";
 import { createErrorResponse } from "../utils";
 
 // extend express request interface
@@ -18,6 +19,36 @@ export function asyncHandler(
   return (req: Request, res: Response, next: NextFunction): void => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
+}
+
+export function authenticateToken(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res
+      .status(401)
+      .json(createErrorResponse("Access token is required"));
+  }
+
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    logError(new Error("JWT Secret is not defined"));
+    return res.status(500).json(createErrorResponse("Internal Server Error"));
+  }
+
+  jwt.verify(token, jwtSecret, (err: any, decoded: any) => {
+    if (err) {
+      return res.status(403).json(createErrorResponse("Invalid Token"));
+    }
+
+    req.user = decoded as JWTPayload;
+    next();
+  });
 }
 
 export function validateRequest(schema: Joi.Schema) {
@@ -64,4 +95,13 @@ export function errorHandler(
   res.status(statusCode).json(createErrorResponse(message));
 
   next();
+}
+
+export function corsOptions() {
+  return {
+    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    credentials: process.env.CORS_CREDENTIALS === "true",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["ContentType", "Authorization"],
+  };
 }
